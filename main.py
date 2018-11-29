@@ -8,15 +8,15 @@ import scene
 
 pygame.init()
 
-renderer = render.Renderer((500, 500))
+renderer = render.Renderer((800, 500))
 mouse = mouse.Mouse()
 keyboard = keyboard.Keyboard()
 handler = event.Handler(mouse, keyboard)
-scene = scene.Scene()
+scene = scene.Scene(mouse, keyboard)
 
-loop = loop.Loop(renderer, handler)
+loop = loop.Loop(renderer, handler, scene)
 
-while loop.update():
+while not loop.update():
 	pass
 
 pygame.quit()

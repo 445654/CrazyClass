@@ -6,11 +6,8 @@ class Loop:
 
 	def update(self):
 		quit = False
-		if self.handler.update():
-			quit = True
-
-		if self.scene.update():
-			quit = True
+		quit |= self.handler.update()
+		quit |= self.scene.update()
 
 		self.renderer.update(self.scene.objects)
 

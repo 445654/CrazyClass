@@ -8,11 +8,12 @@ class Scene:
 		self._generate()
 
 	def _generate(self):
-		self.player = Player()
-		self.teacher = Teacher()
-		self.students = []
-		self.humans = []
-		self.objects = []
+		self.player = player.Player((0, 0), (10, 10), "")
+		self.teacher = teacher.Teacher((100, 100), (10, 10), "")
+		self.students = [self.player]
+		self.humans = [self.teacher] + self.students;
+		self.tables = []
+		self.objects = self.humans + self.tables
 
 	def update(self):
 		self._update_player()
@@ -20,8 +21,10 @@ class Scene:
 		self._update_motion()
 		self._update_collisions()
 
+		return False
+
 	def _update_player(self):
-		self.player.update(self.mouse, self.keyboard)
+		self.player.target = self.mouse.click_position
 
 	def _update_ai(self):
 		self.teacher.update()
