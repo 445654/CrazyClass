@@ -3,8 +3,8 @@ import time
 from pygame.locals import *
 from math import *
 pygame.init()
-xmax=400                                                                                   # La fenêtre et le fond aura une dimension (x,y)
-ymax=300
+xmax=800                                                                                   # La fenêtre et le fond aura une dimension (x,y)
+ymax=500
 grandeur_carre=10
 fenetre = pygame.display.set_mode((xmax, ymax),RESIZABLE)                                     # Creation de la fenetre, taille modifiable
 pygame.display.set_caption('Test!')                                                     # Titre de la fenêtre                
