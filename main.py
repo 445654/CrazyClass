@@ -1,5 +1,7 @@
 import pygame
 import render
+renderer = render.Renderer((800, 500))
+
 import mouse
 import keyboard
 import event
@@ -8,7 +10,6 @@ import scene
 
 pygame.init()
 
-renderer = render.Renderer((800, 500))
 mouse = mouse.Mouse()
 keyboard = keyboard.Keyboard()
 handler = event.Handler(mouse, keyboard)

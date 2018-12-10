@@ -18,6 +18,7 @@ class Mouse:
 			self.position = event.pos
 
 		if event.type == MOUSEBUTTONDOWN:
+			self.position = event.pos
 			if event.button == 1:
 				self.click_left = True
 				self.click_position = self.position

@@ -13,7 +13,7 @@ class Handler:
 		quit = False
 
 		for event in pygame.event.get():
-			if event.type in (MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONUP):
+			if event.type in (MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN):
 				self.mouse.dispatch(event)
 			elif event.type in (KEYDOWN, KEYUP):
 				self.keyboard.dispatch(event)
