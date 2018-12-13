@@ -1,4 +1,5 @@
 import player
+import student
 import teacher
 import table
 import chair
@@ -11,30 +12,38 @@ class Scene:
 		self.row = 5
 		self._generate()
 
-	def _generate_room(self):
+	def _generate(self):
 		self.tables = []
 		self.chairs = []
+		self.students = []
 
+		# Génération des chemins du prof, allé centrale + tables.
+		paths = [[Vector2(0, 250), Vector2(800, 250)]] + \
+			[[Vector2(r, 0), Vector2(r, 500)] for r in range(70, 800, int(700 / self.row))]
+
+		# Génération des chaises, des tables et des élèves.
 		for c in range(70, 500, 360):
 			for r in range(120, 800, int(700 / self.row)):
+
 				pos = Vector2(r, c)
 				t = table.Table(pos)
 				self.tables.append(t)
 
+				# Deux chaises par table.
 				for i in range(2):
+					# Position de la chaise
 					cpos = pos + Vector2(-40, (i * 2 - 1) * 35)
+
 					ch = chair.Chair(cpos)
 					self.chairs.append(ch)
 
-	def _generate(self):
+					stud = student.Student(cpos)
+					self.students.append(stud)
+
+		self.teacher = teacher.Teacher(paths, Vector2(800, 250))
 		self.player = player.Player(Vector2(0, 0))
-		self.teacher = teacher.Teacher(
-			[[Vector2(0, 250), Vector2(800, 250)]] + 
-			[[Vector2(x, 0), Vector2(x, 500)] for x in range(70, 800, int(700 / self.row))],
-			Vector2(800, 250))
-		self.students = [self.player]
+		self.students.append(self.player)
 		self.humans = [self.teacher] + self.students
-		self._generate_room()
 		self.objects = self.humans + self.tables + self.chairs
 
 	def update(self):
