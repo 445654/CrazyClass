@@ -3,7 +3,7 @@ import pygame
 
 class Texture(shape.Shape):
 	def __init__(self, texture_path):
-		self.image = pygame.image.load(texture_path).convert()
+		self.image = pygame.image.load(texture_path).convert_alpha()
 
 	def render(self, screen, pos, size):
 		corner = pos - size / 2
@@ -15,5 +15,5 @@ class Texture(shape.Shape):
 STUDENT_TEXTURE = Texture("textures/perso_0.jpg")
 PLAYER_TEXTURE = Texture("textures/perso_0.jpg")
 TEACHER_TEXTURE = Texture("textures/perso_0.jpg")
-TABLE_TEXTURE = Texture("textures/perso_0.jpg")
-CHAIR_TEXTURE = Texture("textures/perso_0.jpg")
+TABLE_TEXTURE = Texture("textures/table.png")
+CHAIR_TEXTURE = Texture("textures/chaise.png")
