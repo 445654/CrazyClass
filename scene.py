@@ -49,6 +49,7 @@ class Scene:
 	def update(self):
 		self._update_player()
 		self._update_ai()
+		self._update_noise()
 		self._update_motion()
 		self._update_collisions()
 
@@ -62,6 +63,10 @@ class Scene:
 		self.teacher.update()
 		for student in self.students:
 			student.update()
+
+	def _update_noise(self):
+		noisest, intensity = max(((obj, obj.get_noise()) for obj in self.objects), key=lambda pair: pair[1])
+		self.teacher.set_noisest(noisest, intensity)
 
 	def _update_motion(self):
 		for human in self.humans:

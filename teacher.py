@@ -5,6 +5,11 @@ from pygame.math import Vector2
 
 TARGET_DELAY = 500
 
+def distance_point_line(p, l1, l2):
+	dir = l2 - l1
+	dist = abs(dir.y * p.x - dir.x * p.y + l2.x * l1.y - l2.y * l1.x) / dir.length()
+	return dist
+
 def intersect(v1, p1, v2, p2):
 	if (v2.x - v1.x) == 0 or (v2.x - v1.x) == 0:
 		return None
@@ -16,13 +21,29 @@ def intersect(v1, p1, v2, p2):
 class Teacher(human.Human):
 	def __init__(self, paths, position):
 		super().__init__(position, Vector2(30, 30), texture.TEACHER_TEXTURE)
-		self.time = 0
+
+		# Configuration
+		self.speed = 1
+		self.noise_sensibility = 11
+
 		self.paths = paths
+
 		self.nav_points = []
 		self._build_intersects()
 		self.current_path = 0
-		self.speed = 1
+		# Distance maximum avec la cible atteinte.
+		self.target_dist = 2.0
+
 		self._random_target()
+
+		self.noisest = None
+
+	def get_noise(self):
+		return 0
+
+	def set_noisest(self, noisest, intensity):
+		if intensity > self.noise_sensibility:
+			self.noisest = noisest
 
 	def _build_intersects(self):
 		self.intersects = [[] for i in range(len(self.paths))]
@@ -37,15 +58,18 @@ class Teacher(human.Human):
 				if inter is not None:
 					self.intersects[i].append((j, inter))
 
-	def _get_path(self, pos):
-		# Renvoi le chemin contenant cette position.
+	def _get_nearest_path(self, pos):
+		min_dist = 1000000
+		nearest_path = None
+		nearest_path_ind = -1
 		for i, p in enumerate(self.paths):
-			minx = min(p[0].x, p[1].x) - 3.0
-			maxx = max(p[0].x, p[1].x) + 3.0
-			miny = min(p[0].y, p[1].y) - 3.0
-			maxy = max(p[0].y, p[1].y) + 3.0
-			if minx <= pos.x <= maxx and miny <= pos.y <= maxy:
-				return i, p
+			dist = distance_point_line(pos, p[0], p[1])
+			if dist < min_dist:
+				min_dist = dist
+				nearest_path = p
+				nearest_path_ind = i
+
+		return nearest_path_ind, nearest_path
 
 	def _random_target(self):
 		# Selection du chemin cible.
@@ -55,15 +79,23 @@ class Teacher(human.Human):
 		target = Vector2(random.uniform(target_path[0].x, target_path[1].x),
 				random.uniform(target_path[0].y, target_path[1].y))
 
+		self._build_nav_points(target)
+
+	def _build_nav_points(self, target):
+		# On récupère le chemin le plus proche de la cible.
+		target_path_ind, target_path = self._get_nearest_path(target)
+
 		# On récupère le chemin actuel.
-		cur_path_ind, cur_path = self._get_path(self.position)
+		cur_path_ind, cur_path = self._get_nearest_path(self.position)
 
 		self.nav_points = []
+
 		path_ind = cur_path_ind
 		# Trouver tout les points de navigation.
 		while path_ind != target_path_ind:
 			min_len = 100000
 			nav_point = None
+			# Trouver l'intesection la plus proche de la cible.
 			for next_path, point in self.intersects[path_ind]:
 				l = (target - point).length()
 				if min_len > l:
@@ -76,7 +108,14 @@ class Teacher(human.Human):
 
 	def _update_target(self):
 		if len(self.nav_points) == 0:
-			self._random_target()
+			if self.noisest is not None:
+				self._build_nav_points(self.noisest.position)
+				# Mise à none pour ne pas continuer à ce diriger vers la source de bruit.
+				self.noisest = None
+				self.target_dist = 50.0
+			else:
+				self._random_target()
+				self.target_dist = 2.0
 
 	def update(self):
 		self._update_target()
@@ -88,7 +127,7 @@ class Teacher(human.Human):
 		next_target = self.nav_points[0]
 		vect = next_target - self.position
 		dist = vect.length()
-		if dist > 2.0:
+		if dist > self.target_dist:
 			vectn = vect.normalize()
 			self.position += vectn * self.speed
 		else:

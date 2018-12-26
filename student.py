@@ -1,5 +1,6 @@
 import human
 import texture
+import random
 from pygame.math import Vector2
 
 class Student(human.Human):
@@ -11,3 +12,6 @@ class Student(human.Human):
 
 	def update_motion(self):
 		pass
+
+	def get_noise(self):
+		return random.randint(0, 10)

@@ -5,9 +5,11 @@ from pygame.math import Vector2
 class Player(student.Student):
 	def __init__(self, pos):
 		super().__init__(pos, texture.PLAYER_TEXTURE)
+		self.speed = 0.2
+
 		self.target = pos
 		self.follow = False
-		self.speed = 0.2
+		self.noise = 0
 
 	def set_target(self, target):
 		self.target = target
@@ -15,6 +17,11 @@ class Player(student.Student):
 
 	def update(self):
 		pass
+
+	def get_noise(self):
+		noise = self.noise
+		self.noise = 0
+		return noise
 
 	def update_motion(self):
 		if self.follow:
@@ -26,3 +33,4 @@ class Player(student.Student):
 
 	def stop(self):
 		self.follow = False
+		self.noise = 15
