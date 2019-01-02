@@ -19,7 +19,7 @@ class Player(student.Student):
 	def update(self):
 		pass
 
-	def get_noise(self):
+	def get_noise(self): # TODO begin / end logic
 		noise = self.noise
 		self.noise = 0
 		return noise
@@ -33,6 +33,12 @@ class Player(student.Student):
 				vectn = vect.normalize()
 				self.position += vectn * self.speed
 
-	def stop(self):
-		self.follow = False
+	def hit(self, other):
+		# Bruit de la collision
 		self.noise = 50
+
+		# On arrête notre mouvement.
+		self.follow = False
+		# On se fait repousser par l'objet.'
+		dir = (self.position - other.position).normalize()
+		self.position += dir * 20

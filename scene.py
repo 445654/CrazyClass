@@ -68,7 +68,7 @@ class Scene:
 	def _update_noise(self):
 		noisest, intensity = max(((obj, obj.get_noise()) for obj in self.objects), key=lambda pair: pair[1])
 		self.teacher.set_noisest(noisest, intensity)
-		self.effects.append(effect.Circle(noisest.position, 1, intensity, (255, 0, 0, 255)))
+		self.effects.append(effect.Circle(noisest.position, 10, intensity, (255, 0, 0, 255)))
 
 	def _update_motion(self):
 		for human in self.humans:
@@ -78,7 +78,7 @@ class Scene:
 		for obj in self.objects:
 			if obj is not self.player:
 				if obj.collide(self.player):
-					self.player.stop()
+					self.player.hit(obj)
 
 	def _update_effects(self):
 		effects = []
