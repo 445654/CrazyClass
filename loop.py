@@ -9,6 +9,6 @@ class Loop:
 		quit |= self.handler.update()
 		quit |= self.scene.update()
 
-		self.renderer.update(self.scene.objects)
+		self.scene.render(self.renderer)
 
 		return quit

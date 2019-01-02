@@ -5,15 +5,15 @@ class Texture(shape.Shape):
 	def __init__(self, texture_path):
 		self.image = pygame.image.load(texture_path).convert_alpha()
 
-	def render(self, screen, pos, size):
+	def render(self, screen, pos, size, rotation):
 		corner = pos - size / 2
 		image = pygame.transform.scale(self.image, (int(size.x), int(size.y)))
 		screen.blit(image, corner)
 		#pygame.draw.rect(screen, (255, 255, 255, 255), rect)
 
 
-STUDENT_TEXTURE = Texture("textures/perso_0.jpg")
-PLAYER_TEXTURE = Texture("textures/perso_0.jpg")
-TEACHER_TEXTURE = Texture("textures/perso_0.jpg")
-TABLE_TEXTURE = Texture("textures/table.png")
-CHAIR_TEXTURE = Texture("textures/chaise.png")
+STUDENT_TEXTURE = Texture("texture/perso_0.jpg")
+PLAYER_TEXTURE = Texture("texture/perso_0.jpg")
+TEACHER_TEXTURE = Texture("texture/perso_0.jpg")
+TABLE_TEXTURE = Texture("texture/table.png")
+CHAIR_TEXTURE = Texture("texture/chaise.png")

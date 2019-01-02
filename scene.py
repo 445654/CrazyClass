@@ -1,16 +1,16 @@
-import player
-import student
-import teacher
-import table
-import chair
+from entity import player, student, teacher, table, chair
 from pygame.math import Vector2
+import effect
 
 class Scene:
 	def __init__(self, mouse, keyboard):
 		self.mouse = mouse
 		self.keyboard = keyboard
+
 		self.row = 5
 		self._generate()
+
+		self.effects = []
 
 	def _generate(self):
 		self.tables = []
@@ -52,6 +52,7 @@ class Scene:
 		self._update_noise()
 		self._update_motion()
 		self._update_collisions()
+		self._update_effects()
 
 		return False
 
@@ -67,6 +68,7 @@ class Scene:
 	def _update_noise(self):
 		noisest, intensity = max(((obj, obj.get_noise()) for obj in self.objects), key=lambda pair: pair[1])
 		self.teacher.set_noisest(noisest, intensity)
+		self.effects.append(effect.Circle(noisest.position, 1, intensity, (255, 0, 0, 255)))
 
 	def _update_motion(self):
 		for human in self.humans:
@@ -77,3 +79,22 @@ class Scene:
 			if obj is not self.player:
 				if obj.collide(self.player):
 					self.player.stop()
+
+	def _update_effects(self):
+		effects = []
+		for effect in self.effects:
+			if effect.update_time():
+				effects.append(effect)
+
+		self.effects = effects
+
+	def render(self, renderer):
+		renderer.clear()
+
+		ordered_objects = sorted(self.objects, key=lambda obj: obj.render_order)
+
+		for obj in ordered_objects:
+			obj.shape.render(renderer.screen, obj.position, obj.size, obj.rotation)
+
+		for effect in self.effects:
+			effect.render(renderer.screen)

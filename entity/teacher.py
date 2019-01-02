@@ -1,4 +1,4 @@
-import human
+from . import human
 import texture
 import random
 from pygame.math import Vector2
