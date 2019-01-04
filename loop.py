@@ -1,3 +1,6 @@
+import time
+import config
+
 class Loop:
 	def __init__(self, renderer, handler, scene):
 		self.renderer = renderer
@@ -7,8 +10,11 @@ class Loop:
 	def update(self):
 		quit = False
 		quit |= self.handler.update()
-		quit |= self.scene.update()
+		quit |= self.scene.update_logic()
 
-		self.scene.render(self.renderer)
+		start = time.time()
+		while (time.time() - start) < config.FRAME_TIME:
+			self.scene.update_motion()
+			self.scene.render(self.renderer)
 
 		return quit

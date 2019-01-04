@@ -9,8 +9,8 @@ class Rectangle:
 		Vector2(-0.5, 0.5)
 	)
 
-	def __init__(self, width, height):
-		self.size = Vector2(width, height)
+	def __init__(self, size):
+		self.size = size
 
 	def collide(self, other, pos1, pos2):
 		# Ne gère pour le moment que les cercles.

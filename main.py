@@ -1,6 +1,8 @@
 import pygame
 import render
-renderer = render.Renderer((800, 500))
+import config
+
+renderer = render.Renderer(config.SCREEN_SIZE)
 
 import mouse
 import keyboard

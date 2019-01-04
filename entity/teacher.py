@@ -1,9 +1,8 @@
 from . import human
 import texture
+import config
 import random
 from pygame.math import Vector2
-
-TARGET_DELAY = 500
 
 def distance_point_line(p, l1, l2):
 	dir = l2 - l1
@@ -20,10 +19,10 @@ def intersect(v1, p1, v2, p2):
 
 class Teacher(human.Human):
 	def __init__(self, paths, position):
-		super().__init__(position, Vector2(30, 30), texture.TEACHER_TEXTURE)
+		super().__init__(position, config.TEACHER_SIZE, texture.TEACHER_TEXTURE)
 
 		# Configuration
-		self.speed = 1
+		self.speed = config.TEACHER_SPEED
 		self.noise_sensibility = 11
 
 		self.paths = paths
@@ -107,13 +106,13 @@ class Teacher(human.Human):
 		self.nav_points.append(target)
 
 	def _update_target(self):
-		if len(self.nav_points) == 0:
-			if self.noisest is not None:
-				self._build_nav_points(self.noisest.position)
-				# Mise à none pour ne pas continuer à ce diriger vers la source de bruit.
-				self.noisest = None
-				self.target_dist = 50.0
-			else:
+		if self.noisest is not None:
+			self._build_nav_points(self.noisest.position)
+			# Mise à none pour ne pas continuer à ce diriger vers la source de bruit.
+			self.noisest = None
+			self.target_dist = 50.0
+		else:
+			if len(self.nav_points) == 0:
 				self._random_target()
 				self.target_dist = 2.0
 
