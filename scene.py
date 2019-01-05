@@ -69,15 +69,21 @@ class Scene:
 					stud = entity.Student(cpos)
 					self.students.append(stud)
 
-		door_front = entity.Door(Vector2(config.ROOM_SIZE.x * 0.97 - config.DOOR_SIZE.x / 2, config.ROOM_SIZE.y - config.DOOR_SIZE.y / 2))
-		door_back = entity.Door(Vector2(config.ROOM_SIZE.x * 0.03 + config.DOOR_SIZE.x / 2, config.ROOM_SIZE.y - config.DOOR_SIZE.y / 2))
+		# Création des portes.
+		door_front = entity.Door(Vector2(config.ROOM_SIZE.x * 0.97 - config.DOOR_SIZE.x / 2, \
+					config.ROOM_SIZE.y - config.DOOR_SIZE.y / 2))
+		door_back = entity.Door(Vector2(config.ROOM_SIZE.x * 0.03 + config.DOOR_SIZE.x / 2, \
+					config.ROOM_SIZE.y - config.DOOR_SIZE.y / 2))
 		self.doors = [door_front, door_back]
+
+		self.floor = entity.Floor()
 
 		self.teacher = entity.Teacher(paths, Vector2(config.ROOM_SIZE.x, center_x))
 		self.player = entity.Player(Vector2(0, 0)) # TODO choisir une chaise
 		self.students.append(self.player)
 		self.humans = [self.teacher] + self.students
-		self.objects = self.humans + self.tables + self.chairs + self.doors
+
+		self.objects = self.humans + self.tables + self.chairs + self.doors + [self.floor]
 
 	def _win(self):
 		self.status = self.STATUS_WON
@@ -102,6 +108,8 @@ class Scene:
 		return self.status
 
 	def _update_player(self):
+		self.player.update()
+
 		if self.mouse.click_left:
 			self.player.set_target(self.mouse.click_position)
 

@@ -18,12 +18,11 @@ class Player(student.Student):
 		self.follow = True
 
 	def update(self):
-		pass
-
-	def get_noise(self): # TODO begin / end logic
-		noise = self.noise
+		# Remise a zéro du bruit après une potentielle collision.
 		self.noise = 0
-		return noise
+
+	def get_noise(self):
+		return self.noise
 
 	def update_motion(self):
 		if self.follow:
