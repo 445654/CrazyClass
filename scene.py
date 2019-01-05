@@ -15,7 +15,7 @@ def column_range(col):
 class Scene:
 	STATUS_PLAY = 0
 	STATUS_LOST = 1
-	STATUS_WIN = 2
+	STATUS_WON = 2
 
 	def __init__(self, mouse, keyboard):
 		self.mouse = mouse
@@ -37,7 +37,7 @@ class Scene:
 	def _generate_ui(self):
 
 		self.noise_bar = ui.Bar(Vector2(config.SCREEN_SIZE[0] * 0.1, config.ROOM_SIZE.y + config.UI_SIZE.y * 0.1), \
-								config.UI_SIZE * 0.4, config.NOISE_COLOR)
+								Vector2(config.UI_SIZE.x * 0.8, config.UI_SIZE.y * 0.2), config.NOISE_COLOR)
 
 		self.uis = [self.noise_bar]
 
@@ -79,6 +79,18 @@ class Scene:
 		self.humans = [self.teacher] + self.students
 		self.objects = self.humans + self.tables + self.chairs + self.doors
 
+	def _win(self):
+		self.status = self.STATUS_WON
+
+		title = ui.ScreenTitle("Vous avez fuit")
+		self.uis.append(title)
+
+	def _loose(self):
+		self.status = self.STATUS_LOST
+
+		title = ui.ScreenTitle("Vous êtes exclu")
+		self.uis.append(title)
+
 	def update_logic(self):
 		if self.status == self.STATUS_PLAY:
 			self._update_player()
@@ -114,7 +126,7 @@ class Scene:
 				if obj.collide(self.player):
 					# Lorsqu'on touche une porte le jeu est fini
 					if obj in self.doors:
-						self.status = self.STATUS_WIN
+						self._win()
 					else:
 						self.player.hit(obj)
 
