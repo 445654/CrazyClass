@@ -13,14 +13,12 @@ class Loop:
 
 		status = self.scene.update_logic()
 
-		# Continuer si en jeu.
-		if status == self.scene.STATUS_PLAY:
-			start = time.time()
-			while (time.time() - start) < config.FRAME_TIME:
+		start = time.time()
+		while (time.time() - start) < config.FRAME_TIME:
+			# Continuer si en jeu.
+			if status == self.scene.STATUS_PLAY:
 				self.scene.update_motion()
-				self.scene.render(self.renderer)
-		else:
-			# TODO affichage
-			quit = True
+
+			self.scene.render(self.renderer)
 
 		return quit

@@ -18,6 +18,9 @@ class Handler:
 			elif event.type in (KEYDOWN, KEYUP):
 				self.keyboard.dispatch(event)
 
+				if event.key == K_ESCAPE:
+					quit = True
+
 			if event.type == QUIT:
 				quit = True
 

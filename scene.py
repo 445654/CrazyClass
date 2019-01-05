@@ -80,11 +80,12 @@ class Scene:
 		self.objects = self.humans + self.tables + self.chairs + self.doors
 
 	def update_logic(self):
-		self._update_player()
-		self._update_ai()
-		self._update_collisions()
-		self._update_noise()
-		self._update_effects()
+		if self.status == self.STATUS_PLAY:
+			self._update_player()
+			self._update_ai()
+			self._update_collisions()
+			self._update_noise()
+			self._update_effects()
 
 		return self.status
 
