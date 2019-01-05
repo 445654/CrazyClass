@@ -1,4 +1,4 @@
-from entity import player, student, teacher, table, chair
+import entity
 from pygame.math import Vector2
 import effect
 import ui
@@ -13,9 +13,16 @@ def column_range(col):
 		int((config.ROOM_SIZE.y - config.TABLE_SIZE.y) / (col - 1)))
 
 class Scene:
+	STATUS_PLAY = 0
+	STATUS_LOST = 1
+	STATUS_WIN = 2
+
 	def __init__(self, mouse, keyboard):
 		self.mouse = mouse
 		self.keyboard = keyboard
+
+		# État actuel de la partie.
+		self.status = self.STATUS_PLAY
 
 		self.columns = 2
 		self.rows = 5
@@ -48,7 +55,7 @@ class Scene:
 		for c in column_range(self.columns):
 			for r in row_range(self.rows):
 				pos = Vector2(r + config.CHAIR_SIZE.x + config.TEACHER_SIZE.x, c)
-				t = table.Table(pos)
+				t = entity.Table(pos)
 				self.tables.append(t)
 
 				# Deux chaises par table.
@@ -56,17 +63,21 @@ class Scene:
 					# Position de la chaise
 					cpos = pos + Vector2(-40, (i * 2 - 1) * 35)
 
-					ch = chair.Chair(cpos)
+					ch = entity.Chair(cpos)
 					self.chairs.append(ch)
 
-					stud = student.Student(cpos)
+					stud = entity.Student(cpos)
 					self.students.append(stud)
 
-		self.teacher = teacher.Teacher(paths, Vector2(config.ROOM_SIZE.x, center_x))
-		self.player = player.Player(Vector2(0, 0)) # TODO choisir une chaise
+		door_front = entity.Door(Vector2(config.ROOM_SIZE.x * 0.97 - config.DOOR_SIZE.x / 2, config.ROOM_SIZE.y - config.DOOR_SIZE.y / 2))
+		door_back = entity.Door(Vector2(config.ROOM_SIZE.x * 0.03 + config.DOOR_SIZE.x / 2, config.ROOM_SIZE.y - config.DOOR_SIZE.y / 2))
+		self.doors = [door_front, door_back]
+
+		self.teacher = entity.Teacher(paths, Vector2(config.ROOM_SIZE.x, center_x))
+		self.player = entity.Player(Vector2(0, 0)) # TODO choisir une chaise
 		self.students.append(self.player)
 		self.humans = [self.teacher] + self.students
-		self.objects = self.humans + self.tables + self.chairs
+		self.objects = self.humans + self.tables + self.chairs + self.doors
 
 	def update_logic(self):
 		self._update_player()
@@ -75,7 +86,7 @@ class Scene:
 		self._update_noise()
 		self._update_effects()
 
-		return False
+		return self.status
 
 	def _update_player(self):
 		if self.mouse.click_left:
@@ -100,7 +111,11 @@ class Scene:
 		for obj in self.objects:
 			if obj is not self.player:
 				if obj.collide(self.player):
-					self.player.hit(obj)
+					# Lorsqu'on touche une porte le jeu est fini
+					if obj in self.doors:
+						self.status = self.STATUS_WIN
+					else:
+						self.player.hit(obj)
 
 	def _update_effects(self):
 		effects = []
