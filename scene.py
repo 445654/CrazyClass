@@ -145,18 +145,18 @@ class Scene:
 	def _update_collisions(self):
 		for obj in self.objects:
 			if obj is not self.player:
-				if obj.collide(self.player):
+				hit, normal = obj.collide(self.player)
+				if hit:
 					# Lorsqu'on touche une porte le jeu est fini
 					if isinstance(obj, entity.Door):
 						self._win()
+						continue
 					# On évite de faire une collision avec sa chaise ou les chaises vides.
 					elif isinstance(obj, entity.Chair):
 						if obj.student in (self.player, None):
-							pass
-						else:
-							self.player.hit(obj)
-					else:
-						self.player.hit(obj)
+							continue
+
+					self.player.hit(obj, normal)
 
 	def _update_effects(self):
 		effects = []

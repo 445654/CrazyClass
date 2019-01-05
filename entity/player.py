@@ -33,12 +33,12 @@ class Player(student.Student):
 				vectn = vect.normalize()
 				self.position += vectn * self.speed
 
-	def hit(self, other):
+	def hit(self, other, normal):
 		# Bruit de la collision
 		self.noise = config.COLLISION_NOISE
 
 		# On arrête notre mouvement.
 		self.follow = False
+
 		# On se fait repousser par l'objet.'
-		dir = (self.position - other.position).normalize()
-		self.position += dir * config.COLLISION_FORCE
+		self.position += normal * config.COLLISION_FORCE
