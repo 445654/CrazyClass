@@ -3,6 +3,7 @@ from pygame.math import Vector2
 import effect
 import ui
 import config
+import random
 
 def row_range(row):
 	width = config.ROOM_SIZE.x * 0.8
@@ -50,6 +51,13 @@ class Scene:
 		# Génération des chemins du prof, allé centrale + tables.
 		paths = [[Vector2(0, center_x), Vector2(config.ROOM_SIZE.x, center_x)]] + \
 					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for r in row_range(self.rows)]
+		self.teacher = entity.Teacher(paths, Vector2(config.ROOM_SIZE.x, center_x))
+
+		self.player = entity.Player(Vector2(0, 0))
+
+		# Le numéro aléatoire de la chaise du joueur.
+		rand_chair = random.randint(0, self.columns * self.rows * 2 - 1)
+		chair_index = 0
 
 		# Génération des chaises, des tables et des élèves.
 		for c in column_range(self.columns):
@@ -66,8 +74,16 @@ class Scene:
 					ch = entity.Chair(cpos)
 					self.chairs.append(ch)
 
-					stud = entity.Student(cpos)
-					self.students.append(stud)
+					# Assignation d'un élève.
+					if chair_index == rand_chair:
+						ch.student = self.player
+						self.player.position = Vector2(cpos)
+					else:
+						stud = entity.Student(cpos)
+						ch.student = stud
+						self.students.append(stud)
+
+					chair_index += 1
 
 		# Création des portes.
 		door_front = entity.Door(Vector2(config.ROOM_SIZE.x * 0.97 - config.DOOR_SIZE.x / 2, \
@@ -78,8 +94,6 @@ class Scene:
 
 		self.floor = entity.Floor()
 
-		self.teacher = entity.Teacher(paths, Vector2(config.ROOM_SIZE.x, center_x))
-		self.player = entity.Player(Vector2(0, 0)) # TODO choisir une chaise
 		self.students.append(self.player)
 		self.humans = [self.teacher] + self.students
 
@@ -133,8 +147,14 @@ class Scene:
 			if obj is not self.player:
 				if obj.collide(self.player):
 					# Lorsqu'on touche une porte le jeu est fini
-					if obj in self.doors:
+					if isinstance(obj, entity.Door):
 						self._win()
+					# On évite de faire une collision avec sa chaise ou les chaises vides.
+					elif isinstance(obj, entity.Chair):
+						if obj.student in (self.player, None):
+							pass
+						else:
+							self.player.hit(obj)
 					else:
 						self.player.hit(obj)
 

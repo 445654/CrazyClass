@@ -8,3 +8,5 @@ class Chair(baseobject.BaseObject):
 	def __init__(self, pos):
 		super().__init__(pos, config.CHAIR_SIZE, texture.CHAIR_TEXTURE, \
 			collision.Rectangle(config.CHAIR_SIZE), config.CHAIR_ORDER)
+
+		self.student = None
