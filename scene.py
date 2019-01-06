@@ -1,10 +1,11 @@
 import entity
 from pygame.math import Vector2
+from pygame.locals import *
 import effect
 import ui
 import config
 import random
-from math import pi
+import debugger
 
 def row_range(row):
 	width = config.ROOM_SIZE.x * 0.8
@@ -27,6 +28,8 @@ class Scene:
 		self.status = self.STATUS_PLAY
 
 		self.effects = []
+
+		self.debugger = debugger.Debugger()
 
 		self.columns = 2
 		self.rows = 5
@@ -53,9 +56,7 @@ class Scene:
 		paths = [[Vector2(0, center_x), Vector2(config.ROOM_SIZE.x, center_x)]] + \
 					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for r in row_range(self.rows)] # TODO chemin du tableau
 		self.teacher = entity.Teacher(paths, Vector2(config.ROOM_SIZE.x, center_x))
-		# Vue du prof
-		self.teacher_view_effect = effect.Cone(Vector2(config.ROOM_SIZE.x, center_x), None, 300, pi / 2, config.VIEW_COLOR)
-		self.effects.append(self.teacher_view_effect)
+		self.effects.append(self.teacher.view_effect)
 
 		self.player = entity.Player(Vector2(0, 0))
 
@@ -116,6 +117,8 @@ class Scene:
 		self.uis.append(title)
 
 	def update_logic(self):
+		self.debug = self.keyboard.pressed(K_d)
+
 		if self.status == self.STATUS_PLAY:
 			self._update_player()
 			self._update_ai()
@@ -163,10 +166,6 @@ class Scene:
 					self.player.hit(obj, normal)
 
 	def _update_effects(self):
-		# Mise a jour de la transformation du cone de vue.
-		self.teacher_view_effect.position = self.teacher.position
-		self.teacher_view_effect.rotation = pi / 2 - self.teacher.rotation
-
 		effects = []
 		for effect in self.effects:
 			if effect.update_time():
@@ -176,9 +175,14 @@ class Scene:
 
 	def render(self, renderer):
 		renderer.clear()
+
+		if self.debug:
+			self._render_debug(renderer)
+
 		self._render_objects(renderer)
 		self._render_effects(renderer)
 		self._render_uis(renderer)
+
 		renderer.flush()
 
 	def _render_objects(self, renderer):
@@ -194,3 +198,6 @@ class Scene:
 	def _render_uis(self, renderer):
 		for ui in self.uis:
 			ui.render(renderer.screen)
+
+	def _render_debug(self, renderer):
+		self.debugger.render(renderer.debug_overlay, self.teacher, self.player)

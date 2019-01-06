@@ -1,9 +1,14 @@
+from pygame.locals import *
+
 class Keyboard:
 	def __init__(self):
-		pass
+		self.keys = {}
 
 	def reset(self):
 		pass
 
 	def dispatch(self, event):
-		pass
+		self.keys[event.key] = (event.type == KEYDOWN)
+
+	def pressed(self, key):
+		return self.keys.get(key, False)
