@@ -1,5 +1,6 @@
 import shape
 import pygame
+from math import degrees
 
 class Texture(shape.Shape):
 	def __init__(self, texture_path):
@@ -8,6 +9,7 @@ class Texture(shape.Shape):
 	def render(self, screen, pos, size, rotation):
 		corner = pos - size / 2
 		image = pygame.transform.scale(self.image, (int(size.x), int(size.y)))
+		image = pygame.transform.rotate(image, degrees(rotation))
 		screen.blit(image, corner)
 
 

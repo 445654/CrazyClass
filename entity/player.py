@@ -28,10 +28,10 @@ class Player(student.Student):
 		if self.follow:
 			vect = self.target - self.position
 			dist = vect.length()
-			self.rotation = atan2(vect.y, vect.x)
 			if dist > 2.0:
 				vectn = vect.normalize()
 				self.position += vectn * self.speed
+				self.rotation = atan2(vect.x, vect.y)
 
 	def hit(self, other, normal):
 		# Bruit de la collision

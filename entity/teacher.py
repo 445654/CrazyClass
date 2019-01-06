@@ -3,6 +3,7 @@ import texture
 import config
 import random
 from pygame.math import Vector2
+from math import atan2
 
 def distance_point_line(p, l1, l2):
 	dir = l2 - l1
@@ -129,5 +130,6 @@ class Teacher(human.Human):
 		if dist > self.target_dist:
 			vectn = vect.normalize()
 			self.position += vectn * self.speed
+			self.rotation = atan2(vect.x, vect.y)
 		else:
 			self.nav_points.pop(0)
