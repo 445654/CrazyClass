@@ -11,6 +11,10 @@ def row_range(row):
 	width = config.ROOM_SIZE.x * 0.8
 	return range(int(config.ROOM_SIZE.x // 10), int(width), int(width / row))
 
+def row_path_range(row):
+	width = config.ROOM_SIZE.x * 0.8
+	return range(int(config.ROOM_SIZE.x // 10), int(config.ROOM_SIZE.x), int(width / row))
+
 def column_range(col):
 	return range(int(config.TABLE_SIZE.y // 2), int(config.ROOM_SIZE.y), \
 		int((config.ROOM_SIZE.y - config.TABLE_SIZE.y) / (col - 1)))
@@ -54,7 +58,7 @@ class Scene:
 		center_x = config.ROOM_SIZE.y / 2
 		# Génération des chemins du prof, allé centrale + tables.
 		paths = [[Vector2(0, center_x), Vector2(config.ROOM_SIZE.x, center_x)]] + \
-					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for r in row_range(self.rows)] # TODO chemin du tableau
+					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for r in row_path_range(self.rows)]
 		self.teacher = entity.Teacher(paths, Vector2(config.ROOM_SIZE.x, center_x))
 		self.effects.append(self.teacher.view_effect)
 
