@@ -11,7 +11,7 @@ UI_SIZE = Vector2(800, 100)
 TEACHER_SIZE = Vector2(30, 30)
 STUDENT_SIZE = Vector2(20, 20)
 TABLE_SIZE = Vector2(60, 140)
-CHAIR_SIZE = Vector2(40, 40)
+CHAIR_SIZE = Vector2(35, 35)
 DOOR_SIZE = Vector2(60, 8)
 TEXT_SIZE = 100
 

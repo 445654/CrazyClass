@@ -1,9 +1,10 @@
 from . import human
 import texture
+import effect
 import config
 import random
 from pygame.math import Vector2
-from math import atan2
+from math import atan2, pi
 
 def distance_point_line(p, l1, l2):
 	dir = l2 - l1
@@ -31,12 +32,12 @@ class Teacher(human.Human):
 		self.nav_points = []
 		self._build_intersects()
 		self.current_path = 0
-		# Distance maximum avec la cible atteinte.
-		self.target_dist = 2.0
 
 		self._random_target()
 
 		self.noisest = None
+
+		self.view_effect = effect.Cone(Vector2(self.position), None, 300, pi / 2, config.VIEW_COLOR)
 
 	def get_noise(self):
 		return 0
@@ -79,9 +80,9 @@ class Teacher(human.Human):
 		target = Vector2(random.uniform(target_path[0].x, target_path[1].x),
 				random.uniform(target_path[0].y, target_path[1].y))
 
-		self._build_nav_points(target)
+		self._build_nav_points(target, 2.0)
 
-	def _build_nav_points(self, target):
+	def _build_nav_points(self, target, target_dist):
 		# On récupère le chemin le plus proche de la cible.
 		target_path_ind, target_path = self._get_nearest_path(target)
 
@@ -103,19 +104,17 @@ class Teacher(human.Human):
 					path_ind = next_path
 					nav_point = point
 
-			self.nav_points.append(nav_point)
-		self.nav_points.append(target)
+			self.nav_points.append((nav_point, 2.0))
+		self.nav_points.append((target, target_dist))
 
 	def _update_target(self):
 		if self.noisest is not None:
-			self._build_nav_points(self.noisest.position)
+			self._build_nav_points(self.noisest.position, 50.0)
 			# Mise à none pour ne pas continuer à ce diriger vers la source de bruit.
 			self.noisest = None
-			self.target_dist = 50.0
 		else:
 			if len(self.nav_points) == 0:
 				self._random_target()
-				self.target_dist = 2.0
 
 	def update(self):
 		self._update_target()
@@ -124,12 +123,16 @@ class Teacher(human.Human):
 		if len(self.nav_points) == 0:
 			return
 
-		next_target = self.nav_points[0]
+		next_target, point_dist = self.nav_points[0]
 		vect = next_target - self.position
 		dist = vect.length()
-		if dist > self.target_dist:
+		if dist > point_dist:
 			vectn = vect.normalize()
 			self.position += vectn * self.speed
 			self.rotation = atan2(vect.x, vect.y)
 		else:
 			self.nav_points.pop(0)
+
+		# Mise a jour de la transformation du cone de vue.
+		self.view_effect.position = self.position
+		self.view_effect.rotation = pi / 2 - self.rotation
