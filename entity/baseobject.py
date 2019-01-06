@@ -12,7 +12,7 @@ class BaseObject:
 
 	def collide(self, other):
 		return self.collision_shape.collide(other.collision_shape,
-				self.position, other.position)
+				self.position, other.position, self.rotation, other.rotation)
 
 	def get_noise(self):
 		return 0

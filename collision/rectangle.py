@@ -12,7 +12,7 @@ class Rectangle:
 	def __init__(self, size):
 		self.size = size
 
-	def collide(self, other, pos1, pos2):
+	def collide(self, other, pos1, pos2, rot1, rot2):
 		normal = Vector2(0, 0)
 
 		# Ne gère pour le moment que les cercles.

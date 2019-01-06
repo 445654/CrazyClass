@@ -4,6 +4,7 @@ from pygame.locals import *
 import effect
 import ui
 import config
+import collision
 import random
 import debugger
 
@@ -54,6 +55,7 @@ class Scene:
 		self.tables = []
 		self.chairs = []
 		self.students = []
+		self.safe_areas = []
 
 		center_x = config.ROOM_SIZE.y / 2
 		# Génération des chemins du prof, allé centrale + tables.
@@ -94,6 +96,12 @@ class Scene:
 
 					chair_index += 1
 
+		for i in range(self.columns):
+			# Génération d'une zone saine pour se cacher.
+			safe_area = collision.Rectangle(Vector2(config.ROOM_SIZE.x * 0.75, config.TABLE_SIZE.y))
+			self.safe_areas.append((safe_area, Vector2(config.ROOM_SIZE.x * 0.45, \
+				config.TABLE_SIZE.y / 2 + (config.ROOM_SIZE.y - config.TABLE_SIZE.y) * i)))
+
 		# Création des portes.
 		door_front = entity.Door(Vector2(config.ROOM_SIZE.x * 0.97 - config.DOOR_SIZE.x / 2, \
 					config.ROOM_SIZE.y - config.DOOR_SIZE.y / 2))
@@ -129,6 +137,7 @@ class Scene:
 			self._update_collisions()
 			self._update_noise()
 			self._update_effects()
+			self._update_view()
 
 		return self.status
 
@@ -177,6 +186,19 @@ class Scene:
 
 		self.effects = effects
 
+	def _update_view(self):
+		visible = self.teacher.test_view(self.player)
+		if visible:
+			in_area = False
+			for rect, pos in self.safe_areas:
+				hit, normal = rect.collide(self.player.collision_shape, pos, self.player.position, 0.0, self.player.rotation)
+				if hit:
+					in_area = True
+					break
+
+			if not in_area:
+				self._loose()
+
 	def render(self, renderer):
 		renderer.clear()
 
@@ -204,4 +226,4 @@ class Scene:
 			ui.render(renderer.screen)
 
 	def _render_debug(self, renderer):
-		self.debugger.render(renderer.debug_overlay, self.teacher, self.player)
+		self.debugger.render(renderer.debug_overlay, self.teacher, self.player, self.safe_areas)

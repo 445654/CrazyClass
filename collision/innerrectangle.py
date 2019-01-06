@@ -2,7 +2,7 @@ from pygame.math import Vector2
 from . import rectangle
 
 class InnerRectangle(rectangle.Rectangle):
-	def collide(self, other, pos1, pos2):
+	def collide(self, other, pos1, pos2, rot1, rot2):
 		if (pos2.x + other.radius) > self.size.x:
 			return True, Vector2(-1, 0)
 		if (pos2.x - other.radius) < 0:

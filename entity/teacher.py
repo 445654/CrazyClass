@@ -1,6 +1,7 @@
 from . import human
 import texture
 import effect
+import collision
 import config
 import random
 from pygame.math import Vector2
@@ -37,7 +38,9 @@ class Teacher(human.Human):
 
 		self.noisest = None
 
-		self.view_effect = effect.Cone(Vector2(self.position), None, 300, pi / 2, config.VIEW_COLOR)
+		self.view_effect = effect.Cone(Vector2(self.position), None, \
+			config.VIEW_DISTANCE, config.VIEW_ANGLE, config.VIEW_COLOR)
+		self.view = collision.Cone(config.VIEW_DISTANCE, config.VIEW_ANGLE)
 
 	def get_noise(self):
 		return 0
@@ -136,3 +139,7 @@ class Teacher(human.Human):
 		# Mise a jour de la transformation du cone de vue.
 		self.view_effect.position = self.position
 		self.view_effect.rotation = pi / 2 - self.rotation
+
+	def test_view(self, player):
+		return self.view.collide(player.collision_shape, self.position, player.position, \
+			pi / 2 - self.rotation, player.rotation)[0]
