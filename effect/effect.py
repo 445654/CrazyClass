@@ -7,5 +7,8 @@ class Effect:
 		pass
 
 	def update_time(self):
+		if self.life is None:
+			return True
+
 		self.life -= 1
 		return (self.life >= 0)

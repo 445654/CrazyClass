@@ -2,7 +2,7 @@ import pygame
 import render
 import config
 
-renderer = render.Renderer(config.SCREEN_SIZE)
+renderer = render.Renderer(config.SCREEN_SIZE, config.ROOM_SIZE)
 
 import mouse
 import keyboard
