@@ -4,8 +4,15 @@ import effect
 import collision
 import config
 import random
+import numpy
 from pygame.math import Vector2
 from math import atan2, pi
+
+class NavPoint:
+	def __init__(self, point, dist, delay):
+		self.point = point
+		self.dist = dist
+		self.delay = delay
 
 def distance_point_line(p, l1, l2):
 	dir = l2 - l1
@@ -21,7 +28,7 @@ def intersect(v1, p1, v2, p2):
 	return p1 + Vector2(v1.x * dx, v1.y * dy)
 
 class Teacher(human.Human):
-	def __init__(self, paths, position):
+	def __init__(self, paths, random_targets, position):
 		super().__init__(position, config.TEACHER_SIZE, texture.TEACHER_TEXTURE)
 
 		# Configuration
@@ -29,6 +36,7 @@ class Teacher(human.Human):
 		self.noise_sensibility = 11
 
 		self.paths = paths
+		self.random_targets = random_targets
 
 		self.nav_points = []
 		self._build_intersects()
@@ -75,17 +83,17 @@ class Teacher(human.Human):
 
 		return nearest_path_ind, nearest_path
 
+	def _get_random_target_delay(self):
+		return random.randint(config.TEACHER_MIN_RANDOM_DELAY, config.TEACHER_MAX_RANDOM_DELAY)
+
 	def _random_target(self):
-		# Selection du chemin cible.
-		target_path_ind = random.randint(0, len(self.paths) - 1)
-		target_path = self.paths[target_path_ind]
-		# Selection du point sur le chemin.
-		target = Vector2(random.uniform(target_path[0].x, target_path[1].x),
-				random.uniform(target_path[0].y, target_path[1].y))
+		# Selection de la cible aléatoire.
+		target_ind = numpy.random.choice(range(len(self.random_targets)), p=[v for _, v in self.random_targets])
+		target, _ = self.random_targets[target_ind]
 
-		self._build_nav_points(target, 2.0)
+		self._build_nav_points(target, 2.0, self._get_random_target_delay())
 
-	def _build_nav_points(self, target, target_dist):
+	def _build_nav_points(self, target, target_dist, target_delay):
 		# On récupère le chemin le plus proche de la cible.
 		target_path_ind, target_path = self._get_nearest_path(target)
 
@@ -107,17 +115,20 @@ class Teacher(human.Human):
 					path_ind = next_path
 					nav_point = point
 
-			self.nav_points.append((nav_point, 2.0))
-		self.nav_points.append((target, target_dist))
+			self.nav_points.append(NavPoint(nav_point, 2.0, 0))
+		self.nav_points.append(NavPoint(target, target_dist, target_delay))
 
 	def _update_target(self):
 		if self.noisest is not None:
-			self._build_nav_points(self.noisest.position, 50.0)
+			self._build_nav_points(self.noisest.position, 50.0, 0)
 			# Mise à none pour ne pas continuer à ce diriger vers la source de bruit.
 			self.noisest = None
-		else:
-			if len(self.nav_points) == 0:
-				self._random_target()
+		elif len(self.nav_points) == 0:
+			self._random_target()
+
+		# On actualise l'attente au derneir point de navigation.
+		if len(self.nav_points) > 0:
+			self.nav_points[-1].delay -= 1
 
 	def update(self):
 		self._update_target()
@@ -126,15 +137,16 @@ class Teacher(human.Human):
 		if len(self.nav_points) == 0:
 			return
 
-		next_target, point_dist = self.nav_points[0]
-		vect = next_target - self.position
+		point = self.nav_points[0]
+		vect = point.point - self.position
 		dist = vect.length()
-		if dist > point_dist:
+		if dist > point.dist:
 			vectn = vect.normalize()
 			self.position += vectn * self.speed
 			self.rotation = atan2(vect.x, vect.y)
 		else:
-			self.nav_points.pop(0)
+			if point.delay <= 0:
+				self.nav_points.pop(0)
 
 		# Mise a jour de la transformation du cone de vue.
 		self.view_effect.position = self.position

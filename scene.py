@@ -12,10 +12,6 @@ def row_range(row):
 	width = config.ROOM_SIZE.x * 0.8
 	return range(int(config.ROOM_SIZE.x // 10), int(width), int(width / row))
 
-def row_path_range(row):
-	width = config.ROOM_SIZE.x * 0.8
-	return range(int(config.ROOM_SIZE.x // 10), int(config.ROOM_SIZE.x), int(width / row))
-
 def column_range(col):
 	return range(int(config.TABLE_SIZE.y // 2), int(config.ROOM_SIZE.y), \
 		int((config.ROOM_SIZE.y - config.TABLE_SIZE.y) / (col - 1)))
@@ -60,9 +56,8 @@ class Scene:
 		center_x = config.ROOM_SIZE.y / 2
 		# Génération des chemins du prof, allé centrale + tables.
 		paths = [[Vector2(0, center_x), Vector2(config.ROOM_SIZE.x, center_x)]] + \
-					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for r in row_path_range(self.rows)]
-		self.teacher = entity.Teacher(paths, Vector2(config.ROOM_SIZE.x, center_x))
-		self.effects.append(self.teacher.view_effect)
+					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for r in row_range(self.rows)]
+		random_targets = []
 
 		self.player = entity.Player(Vector2(0, 0))
 
@@ -81,6 +76,8 @@ class Scene:
 				for i in range(2):
 					# Position de la chaise
 					cpos = pos + Vector2(-40, (i * 2 - 1) * 35)
+					random_targets.append(
+						(Vector2(cpos.x - config.CHAIR_SIZE.x / 2 - config.TEACHER_SIZE.x / 2, cpos.y), config.NAV_CHAIR_PROB))
 
 					ch = entity.Chair(cpos)
 					self.chairs.append(ch)
@@ -95,6 +92,20 @@ class Scene:
 						self.students.append(stud)
 
 					chair_index += 1
+
+		board_x = config.ROOM_SIZE.x - config.TEACHER_SIZE.x
+		# Génération de point de navigation supplémentaire pour le tableau.
+		for i in range(config.BOARD_POINTS):
+			random_targets.append((Vector2(board_x, \
+				(i + 1) / (config.BOARD_POINTS + 1) * config.ROOM_SIZE.y), config.NAV_BOARD_PROB))
+		# Ajout d'un chemin pour le tableau.
+		paths.append([Vector2(board_x, 0), Vector2(board_x, config.ROOM_SIZE.y)])
+
+		prob_sum = sum((v for _, v in random_targets))
+		random_targets = [(p, v / prob_sum) for p, v in random_targets]
+
+		self.teacher = entity.Teacher(paths, random_targets, Vector2(config.ROOM_SIZE.x, center_x))
+		self.effects.append(self.teacher.view_effect)
 
 		for i in range(self.columns):
 			# Génération d'une zone saine pour se cacher.

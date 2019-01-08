@@ -5,15 +5,18 @@ class Debugger:
 		pass
 
 	def render(self, screen, teacher, player, safe_areas):
-		self._render_teacher(screen, teacher)
 		self._render_safe_areas(screen, safe_areas)
+		self._render_teacher(screen, teacher)
 
 	def _render_teacher(self, screen, teacher):
 		for p1, p2 in teacher.paths:
 			pygame.draw.line(screen, (255, 0, 0, 255), p1, p2)
 
+		for p, v in teacher.random_targets:
+			pygame.draw.circle(screen, (0, 0, 255, 255), (int(p.x), int(p.y)), 1)
+
 		if len(teacher.nav_points) != 0:
-			nav = [point for point, dist in teacher.nav_points]
+			nav = [point.point for point in teacher.nav_points]
 
 			if len(teacher.nav_points) == 1:
 				nav.insert(0, teacher.position)
