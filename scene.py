@@ -25,20 +25,22 @@ class Scene:
 		self.mouse = mouse
 		self.keyboard = keyboard
 
+		self.debugger = debugger.Debugger()
+
+		self.columns = 2
+		self.rows = 5
+
+		self.difficulty = 0
+		self._generate_level(self.difficulty)
+		self._generate_ui()
+
+	def _generate_level(self, difficulty):
 		# État actuel de la partie.
 		self.status = self.STATUS_PLAY
 
 		self.effects = []
 
-		self.debugger = debugger.Debugger()
-
-		self.columns = 2
-		self.rows = 5
-		self._generate()
-
-	def _generate(self):
-		self._generate_room()
-		self._generate_ui()
+		self._generate_room(difficulty)
 
 	def _generate_ui(self):
 
@@ -47,7 +49,7 @@ class Scene:
 
 		self.uis = [self.noise_bar]
 
-	def _generate_room(self):
+	def _generate_room(self, difficulty):
 		self.tables = []
 		self.chairs = []
 		self.students = []
@@ -59,7 +61,7 @@ class Scene:
 					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for r in row_range(self.rows)]
 		random_targets = []
 
-		self.player = entity.Player(Vector2(0, 0))
+		self.player = entity.Player(config.PLAYER_SPEED * config.PLAYER_SPEED_DIFFICULTY ** difficulty, Vector2(0, 0))
 
 		# Le numéro aléatoire de la chaise du joueur.
 		rand_chair = random.randint(0, self.columns * self.rows * 2 - 1)
@@ -75,7 +77,7 @@ class Scene:
 				# Deux chaises par table.
 				for i in range(2):
 					# Position de la chaise
-					cpos = pos + Vector2(-40, (i * 2 - 1) * 35)
+					cpos = pos + Vector2(-42, (i * 2 - 1) * 35)
 					random_targets.append(
 						(Vector2(cpos.x - config.CHAIR_SIZE.x / 2 - config.TEACHER_SIZE.x / 2, cpos.y), config.NAV_CHAIR_PROB))
 
@@ -104,7 +106,9 @@ class Scene:
 		prob_sum = sum((v for _, v in random_targets))
 		random_targets = [(p, v / prob_sum) for p, v in random_targets]
 
-		self.teacher = entity.Teacher(paths, random_targets, Vector2(config.ROOM_SIZE.x, center_x))
+		self.teacher = entity.Teacher(paths, random_targets, \
+			config.TEACHER_SPEED * config.TEACHER_SPEED_DIFFICULTY ** difficulty, \
+			Vector2(config.ROOM_SIZE.x, center_x))
 		self.effects.append(self.teacher.view_effect)
 
 		for i in range(self.columns):
@@ -130,27 +134,44 @@ class Scene:
 	def _win(self):
 		self.status = self.STATUS_WON
 
-		title = ui.ScreenTitle("Vous avez fuit")
+		title = ui.ScreenTitle("Vous avez fuit", config.TITLE_LIFE)
 		self.uis.append(title)
 
 	def _loose(self):
 		self.status = self.STATUS_LOST
 
-		title = ui.ScreenTitle("Vous êtes exclu")
+		title = ui.ScreenTitle("Vous êtes exclu", config.TITLE_LIFE)
 		self.uis.append(title)
 
 	def update_logic(self):
-		self.debug = self.keyboard.pressed(K_d)
-
-		if self.status == self.STATUS_PLAY:
-			self._update_player()
-			self._update_ai()
-			self._update_collisions()
-			self._update_noise()
-			self._update_effects()
-			self._update_view()
+		self._update_debug()
+		self._update_level()
+		self._update_player()
+		self._update_ai()
+		self._update_collisions()
+		self._update_noise()
+		self._update_effects()
+		self._update_view()
+		self._update_uis()
 
 		return self.status
+
+	def _update_debug(self):
+		# Opération de debugage
+		self.debug = self.keyboard.pressed(K_d)
+		if self.keyboard.pressed(K_w):
+			self._win()
+		elif self.keyboard.pressed(K_l):
+			self._loose()
+
+	def _update_level(self):
+		# Génération du niveau sivant.
+		if self.status == self.STATUS_WON:
+			# Augmentation de la difficulté.
+			self.difficulty += 1
+			self._generate_level(self.difficulty)
+		elif self.status == self.STATUS_LOST:
+			self._generate_level(self.difficulty)
 
 	def _update_player(self):
 		self.player.update()
@@ -196,6 +217,14 @@ class Scene:
 				effects.append(effect)
 
 		self.effects = effects
+
+	def _update_uis(self):
+		uis = []
+		for ui in self.uis:
+			if ui.update_time():
+				uis.append(ui)
+
+		self.uis = uis
 
 	def _update_view(self):
 		visible = self.teacher.test_view(self.player)

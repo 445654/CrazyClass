@@ -5,9 +5,9 @@ from pygame.math import Vector2
 from math import atan2
 
 class Player(student.Student):
-	def __init__(self, pos):
+	def __init__(self, speed, pos):
 		super().__init__(pos, texture.PLAYER_TEXTURE)
-		self.speed = config.PLAYER_SPEED
+		self.speed = speed
 
 		self.target = pos
 		self.follow = False

@@ -28,11 +28,11 @@ def intersect(v1, p1, v2, p2):
 	return p1 + Vector2(v1.x * dx, v1.y * dy)
 
 class Teacher(human.Human):
-	def __init__(self, paths, random_targets, position):
+	def __init__(self, paths, random_targets, speed, position):
 		super().__init__(position, config.TEACHER_SIZE, texture.TEACHER_TEXTURE)
 
 		# Configuration
-		self.speed = config.TEACHER_SPEED
+		self.speed = speed
 		self.noise_sensibility = 11
 
 		self.paths = paths

@@ -1,7 +1,9 @@
 import pygame
+import effect
 
-class Bar:
+class Bar(effect.Effect):
 	def __init__(self, position, size, color, value=0.0):
+		super().__init__(self, None)
 		self.position = position
 		self.size = size
 		self.color = color
