@@ -140,7 +140,7 @@ class Teacher(human.Human):
 		point = self.nav_points[0]
 		vect = point.point - self.position
 		dist = vect.length()
-		if dist > point.dist:
+		if dist > max(point.dist, self.speed):
 			vectn = vect.normalize()
 			self.position += vectn * self.speed
 			self.rotation = atan2(vect.x, vect.y)

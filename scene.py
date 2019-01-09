@@ -7,14 +7,15 @@ import config
 import collision
 import random
 import debugger
+from math import pi, exp
 
 def row_range(row):
 	width = config.ROOM_SIZE.x * 0.8
-	return range(int(config.ROOM_SIZE.x // 10), int(width), int(width / row))
+	return enumerate(range(int(config.ROOM_SIZE.x // 10), int(width), int(width / row)))
 
 def column_range(col):
-	return range(int(config.TABLE_SIZE.y // 2), int(config.ROOM_SIZE.y), \
-		int((config.ROOM_SIZE.y - config.TABLE_SIZE.y) / (col - 1)))
+	return enumerate(range(int(config.TABLE_SIZE.y // 2), int(config.ROOM_SIZE.y), \
+		int((config.ROOM_SIZE.y - config.TABLE_SIZE.y) / (col - 1))))
 
 class Scene:
 	STATUS_PLAY = 0
@@ -58,18 +59,22 @@ class Scene:
 		center_x = config.ROOM_SIZE.y / 2
 		# Génération des chemins du prof, allé centrale + tables.
 		paths = [[Vector2(0, center_x), Vector2(config.ROOM_SIZE.x, center_x)]] + \
-					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for r in row_range(self.rows)]
+					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for _, r in row_range(self.rows)]
 		random_targets = []
 
 		self.player = entity.Player(config.PLAYER_SPEED * config.PLAYER_SPEED_DIFFICULTY ** difficulty, Vector2(0, 0))
 
 		# Le numéro aléatoire de la chaise du joueur.
-		rand_chair = random.randint(0, self.columns * self.rows * 2 - 1)
-		chair_index = 0
+		rand_col = random.randint(0, self.columns - 1)
+		max_row = self.rows - 1
+		# Choix du rang en fonction de la difficulté, plus elle augmente plus il y a de chance
+		# d'être près du tableau.
+		rand_row = random.randint(max_row - int(max_row * exp(-difficulty * config.PLAYER_ROW_DIFFICULTY)), max_row)
+		rand_chair = random.randint(0, 1)
 
 		# Génération des chaises, des tables et des élèves.
-		for c in column_range(self.columns):
-			for r in row_range(self.rows):
+		for c_i, c in column_range(self.columns):
+			for r_i, r in row_range(self.rows):
 				pos = Vector2(r + config.CHAIR_SIZE.x + config.TEACHER_SIZE.x, c)
 				t = entity.Table(pos)
 				self.tables.append(t)
@@ -85,18 +90,18 @@ class Scene:
 					self.chairs.append(ch)
 
 					# Assignation d'un élève.
-					if chair_index == rand_chair:
+					if c_i == rand_col and r_i == rand_row and i == rand_chair:
 						ch.student = self.player
-						self.player.position = Vector2(cpos)
+						self.player.position = Vector2(cpos.x - config.STUDENT_SIZE.x / 2, cpos.y)
 					else:
 						stud = entity.Student(cpos)
 						ch.student = stud
 						self.students.append(stud)
 
-					chair_index += 1
+					ch.student.rotation = pi / 2
 
 		board_x = config.ROOM_SIZE.x - config.TEACHER_SIZE.x
-		# Génération de point de navigation supplémentaire pour le tableau.
+		# Génération de points de navigation supplémentaire pour le tableau.
 		for i in range(config.BOARD_POINTS):
 			random_targets.append((Vector2(board_x, \
 				(i + 1) / (config.BOARD_POINTS + 1) * config.ROOM_SIZE.y), config.NAV_BOARD_PROB))
