@@ -39,6 +39,8 @@ class Scene:
 		# État actuel de la partie.
 		self.status = self.STATUS_PLAY
 
+		self.life = config.LIFE
+
 		self.effects = []
 
 		self._generate_room(difficulty)
@@ -48,7 +50,11 @@ class Scene:
 		self.noise_bar = ui.Bar(Vector2(config.SCREEN_SIZE[0] * 0.1, config.ROOM_SIZE.y + config.UI_SIZE.y * 0.1), \
 								Vector2(config.UI_SIZE.x * 0.8, config.UI_SIZE.y * 0.2), config.NOISE_COLOR)
 
-		self.uis = [self.noise_bar]
+		text_x = config.SCREEN_SIZE[0] * 0.05
+		noise_text = ui.Text("Bruit :", Vector2(text_x, config.ROOM_SIZE.y + config.UI_SIZE.y * 0.2), 30)
+		self.life_text = ui.Text("", Vector2(text_x, config.ROOM_SIZE.y + config.UI_SIZE.y * 0.5), 30)
+
+		self.uis = [self.noise_bar, self.life_text, noise_text]
 
 	def _generate_room(self, difficulty):
 		self.tables = []
@@ -57,12 +63,10 @@ class Scene:
 		self.safe_areas = []
 
 		center_x = config.ROOM_SIZE.y / 2
-		# Génération des chemins du prof, allé centrale + tables.
+		# Génération des chemins de navigation, allé centrale + tables.
 		paths = [[Vector2(0, center_x), Vector2(config.ROOM_SIZE.x, center_x)]] + \
 					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for _, r in row_range(self.rows)]
 		random_targets = []
-
-		self.player = entity.Player(config.PLAYER_SPEED * config.PLAYER_SPEED_DIFFICULTY ** difficulty, Vector2(0, 0))
 
 		# Le numéro aléatoire de la chaise du joueur.
 		rand_col = random.randint(0, self.columns - 1)
@@ -89,10 +93,12 @@ class Scene:
 					ch = entity.Chair(cpos)
 					self.chairs.append(ch)
 
-					# Assignation d'un élève.
+					# Assignation d'un élève ou du joueur.
 					if c_i == rand_col and r_i == rand_row and i == rand_chair:
+						player_position = Vector2(cpos.x - config.STUDENT_SIZE.x / 2, cpos.y)
+						self.player = entity.Player(paths, \
+							config.PLAYER_SPEED * config.PLAYER_SPEED_DIFFICULTY ** difficulty, player_position)
 						ch.student = self.player
-						self.player.position = Vector2(cpos.x - config.STUDENT_SIZE.x / 2, cpos.y)
 					else:
 						stud = entity.Student(cpos)
 						ch.student = stud
@@ -104,7 +110,7 @@ class Scene:
 		# Génération de points de navigation supplémentaire pour le tableau.
 		for i in range(config.BOARD_POINTS):
 			random_targets.append((Vector2(board_x, \
-				(i + 1) / (config.BOARD_POINTS + 1) * config.ROOM_SIZE.y), config.NAV_BOARD_PROB))
+				(i + 1) / (config.BOARD_POINTS + 1) * config.ROOM_SIZE.y), config.NAV_BOARD_PROB)) # TODO diffi
 		# Ajout d'un chemin pour le tableau.
 		paths.append([Vector2(board_x, 0), Vector2(board_x, config.ROOM_SIZE.y)])
 
@@ -118,7 +124,7 @@ class Scene:
 
 		for i in range(self.columns):
 			# Génération d'une zone saine pour se cacher.
-			safe_area = collision.Rectangle(Vector2(config.ROOM_SIZE.x * 0.75, config.TABLE_SIZE.y))
+			safe_area = collision.Rectangle(Vector2(config.ROOM_SIZE.x * 0.8, config.TABLE_SIZE.y))
 			self.safe_areas.append((safe_area, Vector2(config.ROOM_SIZE.x * 0.45, \
 				config.TABLE_SIZE.y / 2 + (config.ROOM_SIZE.y - config.TABLE_SIZE.y) * i)))
 
@@ -148,16 +154,31 @@ class Scene:
 		title = ui.ScreenTitle("Vous êtes exclu", config.TITLE_LIFE)
 		self.uis.append(title)
 
+	def _catch_player(self):
+		# On perd une vie et perd potentiellement.
+		if self.life == 0:
+			self._loose()
+		self.life -= 1
+
+		# Le joueur retourne à sa place.
+		self.player.return_seat()
+
+	def _player_caught(self):
+		return self.player.status == self.player.STATUS_CAUGHT
+
 	def update_logic(self):
 		self._update_debug()
 		self._update_level()
 		self._update_player()
 		self._update_ai()
-		self._update_collisions()
 		self._update_noise()
 		self._update_effects()
-		self._update_view()
 		self._update_uis()
+
+		# Test de collision et de vue seulement quand le joueur n'est pas attrapé.
+		if not self._player_caught():
+			self._update_collisions()
+			self._update_view()
 
 		return self.status
 
@@ -191,8 +212,8 @@ class Scene:
 
 	def _update_noise(self):
 		noisest, intensity = max(((obj, obj.get_noise()) for obj in self.objects), key=lambda pair: pair[1])
-		self.teacher.set_noisest(noisest, intensity)
-		self.effects.append(effect.Circle(noisest.position, 1, intensity, config.NOISE_COLOR))
+		self.teacher.set_noisest(noisest.position, intensity)
+		self.effects.append(effect.Circle(noisest.position, 1, intensity * 5, config.NOISE_COLOR))
 		self.noise_bar.value = intensity / config.MAX_NOISE
 
 	def update_motion(self):
@@ -214,6 +235,7 @@ class Scene:
 							continue
 
 					self.player.hit(obj, normal)
+					self._catch_player()
 
 	def _update_effects(self):
 		effects = []
@@ -224,6 +246,8 @@ class Scene:
 		self.effects = effects
 
 	def _update_uis(self):
+		self.life_text.text = "Vie : {}/{}".format(self.life, config.LIFE)
+
 		uis = []
 		for ui in self.uis:
 			if ui.update_time():
@@ -242,7 +266,7 @@ class Scene:
 					break
 
 			if not in_area:
-				self._loose()
+				self._catch_player()
 
 	def render(self, renderer):
 		renderer.clear()

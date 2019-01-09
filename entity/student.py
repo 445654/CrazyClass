@@ -5,10 +5,8 @@ import random
 from pygame.math import Vector2
 
 class Student(human.Human):
-	def __init__(self, pos, shape=None):
-		if shape is None:
-			shape = texture.STUDENT_TEXTURES[random.randint(0, len(texture.STUDENT_TEXTURES) - 1)]
-
+	def __init__(self, pos):
+		shape = texture.STUDENT_TEXTURES[random.randint(0, len(texture.STUDENT_TEXTURES) - 1)]
 		super().__init__(pos, config.STUDENT_SIZE, shape)
 
 	def update(self):
