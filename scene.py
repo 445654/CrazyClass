@@ -70,9 +70,10 @@ class Scene:
 
 		# Génération de points de navigation supplémentaire pour le tableau.
 		board_x = config.ROOM_SIZE.x - config.TEACHER_SIZE.x
+		board_prob = int(config.NAV_BOARD_PROB * exp(-difficulty * config.TEACHER_BOARD_PROP_DIFFICULTY))
 		for i in range(config.BOARD_POINTS):
 			random_targets.append((Vector2(board_x, \
-				(i + 1) / (config.BOARD_POINTS + 1) * config.ROOM_SIZE.y), config.NAV_BOARD_PROB)) # TODO diffi
+				(i + 1) / (config.BOARD_POINTS + 1) * config.ROOM_SIZE.y), board_prob))
 		# Ajout d'un chemin pour le tableau.
 		paths.append([Vector2(board_x, 0), Vector2(board_x, config.ROOM_SIZE.y)])
 
@@ -114,6 +115,7 @@ class Scene:
 
 					ch.student.rotation = pi / 2
 
+		# Division des probabilités pour garder une somme à 1.
 		prob_sum = sum((v for _, v in random_targets))
 		random_targets = [(p, v / prob_sum) for p, v in random_targets]
 
