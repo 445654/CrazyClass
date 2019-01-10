@@ -22,9 +22,9 @@ A chaque perte de vie vous retournez à votre place. Vous pouvez perdre une vie 
 
 # Niveau
 
-A chaque succès la difficulté augmente et se manifeste par l'augmentation de la vitesse du professeur et la réduction de la vôtre. Aussi la probabilité de vous placer proche du tableau augmente tout comme la probabilité du professeur de naviguer plus vers les élèves et moins vers le tableau.
+A chaque succès, la difficulté augmente et se manifeste par l'augmentation de la vitesse du professeur et la réduction de la vôtre. Aussi la probabilité de vous placer proche du tableau augmente tout comme la probabilité du professeur de naviguer plus vers les élèves et moins vers le tableau.
 
-# Execution
+# Exécution
 
 Le jeu se lance avec l'interpréteur python sur le fichier `main.py` :
 
