@@ -7,6 +7,7 @@ class Debugger:
 	def render(self, screen, teacher, player, safe_areas):
 		self._render_safe_areas(screen, safe_areas)
 		self._render_teacher(screen, teacher)
+		self._render_player(screen, player)
 
 	def _render_teacher(self, screen, teacher):
 		for p1, p2 in teacher.paths:
@@ -20,6 +21,15 @@ class Debugger:
 
 			if len(teacher.nav_points) == 1:
 				nav.insert(0, teacher.position)
+
+			pygame.draw.lines(screen, (0, 255, 0, 255), False, nav)
+
+	def _render_player(self, screen, player):
+		if len(player.nav_points) != 0:
+			nav = [point.point for point in player.nav_points]
+
+			if len(player.nav_points) == 1:
+				nav.insert(0, player.position)
 
 			pygame.draw.lines(screen, (0, 255, 0, 255), False, nav)
 

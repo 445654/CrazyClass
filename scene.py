@@ -68,6 +68,14 @@ class Scene:
 					[[Vector2(r, 0), Vector2(r, config.ROOM_SIZE.y)] for _, r in row_range(self.rows)]
 		random_targets = []
 
+		# Génération de points de navigation supplémentaire pour le tableau.
+		board_x = config.ROOM_SIZE.x - config.TEACHER_SIZE.x
+		for i in range(config.BOARD_POINTS):
+			random_targets.append((Vector2(board_x, \
+				(i + 1) / (config.BOARD_POINTS + 1) * config.ROOM_SIZE.y), config.NAV_BOARD_PROB)) # TODO diffi
+		# Ajout d'un chemin pour le tableau.
+		paths.append([Vector2(board_x, 0), Vector2(board_x, config.ROOM_SIZE.y)])
+
 		# Le numéro aléatoire de la chaise du joueur.
 		rand_col = random.randint(0, self.columns - 1)
 		max_row = self.rows - 1
@@ -105,14 +113,6 @@ class Scene:
 						self.students.append(stud)
 
 					ch.student.rotation = pi / 2
-
-		board_x = config.ROOM_SIZE.x - config.TEACHER_SIZE.x
-		# Génération de points de navigation supplémentaire pour le tableau.
-		for i in range(config.BOARD_POINTS):
-			random_targets.append((Vector2(board_x, \
-				(i + 1) / (config.BOARD_POINTS + 1) * config.ROOM_SIZE.y), config.NAV_BOARD_PROB)) # TODO diffi
-		# Ajout d'un chemin pour le tableau.
-		paths.append([Vector2(board_x, 0), Vector2(board_x, config.ROOM_SIZE.y)])
 
 		prob_sum = sum((v for _, v in random_targets))
 		random_targets = [(p, v / prob_sum) for p, v in random_targets]
