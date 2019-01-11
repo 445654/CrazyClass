@@ -1,0 +1,15 @@
+Fonctionnalités
+
+- Déplacement de l'élève à la souris.
+- Deplacement automatique du professeur sans collision.
+- Gestion des collisions joueur / professeur / table / chaise
+- Augmentation de la difficulté par génération.
+
+Bugs
+
+- Collision volontaire entre le joueur et le professeur lorsque celui ci passe derrière sa chaise.
+
+Amélioration
+
+- Gestion des projectiles.
+- Gestion de la délation.
