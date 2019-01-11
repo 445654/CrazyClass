@@ -11,7 +11,7 @@ class Player(moveable.Moveable):
 	STATUS_CAUGHT = 1
 
 	def __init__(self, paths, speed, pos):
-		super().__init__(config.STUDENT_SIZE, texture.PLAYER_TEXTURE, paths, speed, pos)
+		super().__init__(config.PLAYER_SIZE, texture.PLAYER_TEXTURE, paths, speed, pos)
 
 		# Position initial de notre chaise.
 		self.init_position = Vector2(pos)

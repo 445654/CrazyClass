@@ -173,14 +173,15 @@ class Scene:
 		self._update_level()
 		self._update_player()
 		self._update_ai()
-		self._update_noise()
-		self._update_effects()
-		self._update_uis()
 
 		# Test de collision et de vue seulement quand le joueur n'est pas attrapé.
 		if not self._player_caught():
 			self._update_collisions()
 			self._update_view()
+
+		self._update_noise()
+		self._update_effects()
+		self._update_uis()
 
 		return self.status
 

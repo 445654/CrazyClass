@@ -9,8 +9,9 @@ ROOM_SIZE = Vector2(850, 500)
 
 UI_SIZE = Vector2(800, 100)
 
-TEACHER_SIZE = Vector2(30, 30)
+TEACHER_SIZE = Vector2(40, 40)
 STUDENT_SIZE = Vector2(30, 30)
+PLAYER_SIZE = Vector2(30, 20)
 TABLE_SIZE = Vector2(60, 140)
 CHAIR_SIZE = Vector2(35, 35)
 DOOR_SIZE = Vector2(60, 8)

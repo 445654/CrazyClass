@@ -14,8 +14,8 @@ class Texture(shape.Shape):
 
 
 STUDENT_TEXTURES = [Texture("texture/student_{}.png".format(i)) for i in range(4)]
-PLAYER_TEXTURE = Texture("texture/perso_0.jpg")
-TEACHER_TEXTURE = Texture("texture/perso_0.jpg")
+PLAYER_TEXTURE = Texture("texture/player.png")
+TEACHER_TEXTURE = Texture("texture/teacher.png")
 TABLE_TEXTURE = Texture("texture/table.png")
 CHAIR_TEXTURE = Texture("texture/chaise.png")
 DOOR_TEXTURE = Texture("texture/door.png")
